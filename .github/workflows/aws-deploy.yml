@@ -76,8 +76,8 @@ jobs:
             cd ${{ secrets.AWS_PROJECT_PATH }}
 
             # Pull latest code
-            git fetch origin main
-            git reset --hard origin/main
+            sudo git fetch origin main
+            sudo git reset --hard origin/main
 
             # Load PHP version if using something like phpenv or a specific path (optional)
             # source /etc/profile.d/php.sh
@@ -86,8 +86,8 @@ jobs:
             composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
             # Build frontend (optional – comment out if using pre-built assets)
-            npm install --production=false
-            npm run build
+            sudo npm install --production=false
+            sudo npm run build
 
             # Run database migrations
             php artisan migrate --force

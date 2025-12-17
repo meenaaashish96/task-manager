@@ -27,20 +27,16 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info('WEB TASK STORE CALLED', $request->all());
-
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => 'required|in:pending,in-progress,completed',
-            // Accept the raw date string from the datepicker to avoid locale issues
-            'due_date' => 'required',
+            'due_date' => 'required|date',
         ]);
 
-        $request->user()->tasks()->create($validated);
+        $task = $request->user()->tasks()->create($validated);
 
-        // Redirect back to the dashboard/tasks list with a success flash message
-        return redirect()->route('dashboard')->with('success', 'Task Created!');
+        return redirect()->route('dashboard')->with('success', 'Task Created Successfully!');
     }
 
     public function update(Request $request, Task $task)

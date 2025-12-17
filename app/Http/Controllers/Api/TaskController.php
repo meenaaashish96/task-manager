@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Task;
+use Illuminate\Http\Request;
+
+class TaskController extends Controller
+{
+    public function index(Request $request)
+    {
+        return response()->json([
+            'status' => true,
+            'data' => $request->user()->tasks()->paginate(10)
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:pending,in-progress,completed',
+            'due_date' => 'required|date',
+        ]);
+
+        $task = $request->user()->tasks()->create($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Task Created',
+            'data' => $task
+        ], 201);
+    }
+
+    public function update(Request $request, Task $task)
+    {
+        if ($task->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'sometimes|in:pending,in-progress,completed',
+            'due_date' => 'sometimes|date',
+        ]);
+
+        $task->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Task Updated',
+            'data' => $task
+        ]);
+    }
+
+    public function destroy(Request $request, Task $task)
+    {
+        if ($task->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        $task->delete();
+        return response()->json(['status' => true, 'message' => 'Task Deleted']);
+    }
+}

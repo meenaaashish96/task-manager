@@ -1,59 +1,278 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Mini Task Management System – Laravel Machine Test
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This project is a **mini task management system** built with **Laravel 11**, implementing both **web (Blade)** and **REST API** features.
 
-## About Laravel
+It follows the given machine-test requirements:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- User authentication (web & API via Sanctum).
+- Task CRUD (title, description, status, due date, user relation).
+- Background job + scheduled command to email reminders for tasks due tomorrow.
+- RESTful JSON APIs for tasks.
+- Web dashboard with Blade, Tailwind CSS (Breeze), pagination, and basic filters.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Tech Stack
 
-## Learning Laravel
+- **Backend**: PHP 8.2+, Laravel 11
+- **Auth**: Laravel Breeze (web), Laravel Sanctum (API tokens)
+- **Database**: SQLite (default) or MySQL (configurable)
+- **Queues**: Database queue driver
+- **Mail**: Any Laravel-supported mail driver (Mailtrap/local SMTP recommended)
+- **Frontend**: Blade + Tailwind CSS (via Vite)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 2. Getting Started
 
-## Laravel Sponsors
+#### 2.1. Clone & Install Dependencies
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+git clone <your-repo-url> task-manager
+cd task-manager
 
-### Premium Partners
+composer install
+npm install
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+#### 2.2. Environment Setup
 
-## Contributing
+1. Copy the example `.env`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+cp .env.example .env
+```
 
-## Code of Conduct
+2. Generate the app key:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+3. Configure database in `.env` (default is SQLite). For SQLite (recommended for quick setup):
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database.sqlite
+```
 
-## License
+Create the file if it does not exist:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+touch database/database.sqlite
+```
+
+For MySQL, set:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=task_manager
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+4. Configure mail (for reminder emails) in `.env`, for example with Mailtrap:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="no-reply@example.com"
+MAIL_FROM_NAME="Task Manager"
+```
+
+5. Configure queue:
+
+```env
+QUEUE_CONNECTION=database
+```
+
+#### 2.3. Migrate & Seed
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+The seeder will:
+
+- Ensure at least one test user exists.
+- Insert a **sample task** so you can immediately see data on the dashboard.
+
+#### 2.4. Build Frontend Assets
+
+In a separate terminal:
+
+```bash
+npm run dev   # for local development with Vite
+```
+
+or
+
+```bash
+npm run build # for production build
+```
+
+#### 2.5. Run the Application
+
+```bash
+php artisan serve
+```
+
+Visit `http://localhost:8000` in your browser.
+
+You can log in using a user you register via the UI, or any user created by the seeder.
+
+---
+
+### 3. Features Overview
+
+#### 3.1. Authentication
+
+- Standard **registration, login, logout, password reset** flows powered by Laravel Breeze.
+- Only **authenticated & verified users** can access:
+  - `/dashboard`
+  - All task routes (`/tasks`, `/tasks/{id}`, etc.).
+
+#### 3.2. Task Management (Web – Blade)
+
+- **Model**: `App\Models\Task`
+  - `title` (string, required)
+  - `description` (text, nullable)
+  - `status` (`pending`, `in-progress`, `completed`)
+  - `due_date` (date)
+  - `user_id` (foreign key to `users` table)
+
+- **Migration**: `database/migrations/2025_12_17_085516_create_tasks_table.php`
+  - Uses `enum` for `status`.
+  - Cascades deletes on user removal.
+
+- **Controller**: `App\Http\Controllers\TaskController`
+  - `index()` – lists current user’s tasks (paginated, filterable by `status` and `due_date`).
+  - `store()` – creates a new task for the logged-in user.
+  - `edit()` – shows edit form for user’s own task.
+  - `update()` – updates a task (with ownership check).
+  - `destroy()` – deletes a task (with ownership check).
+
+- **Views**:
+  - `resources/views/tasks/index.blade.php`
+    - Dashboard-style page with:
+      - Add New Task form (title, description, status, due date).
+      - Filters (status, due date).
+      - Paginated task table with status badges and actions (Edit/Delete).
+  - `resources/views/tasks/edit.blade.php`
+    - Simple edit form with Tailwind styling.
+
+- **Routes**: `routes/web.php`
+
+```php
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [TaskController::class, 'index'])->name('dashboard');
+    Route::resource('tasks', TaskController::class)->except(['create', 'show']);
+});
+```
+
+#### 3.3. API (Sanctum)
+
+- **Auth**:
+
+  - `POST /api/login`
+    - Request: `{ "email": "...", "password": "..." }`
+    - Response: `{ "token": "plain-text-api-token" }`
+    - Uses Laravel Sanctum to create a personal access token.
+
+- **Protected Endpoints** (all require `Authorization: Bearer {token}` header):
+
+  - `GET /api/tasks`
+    - Returns paginated list of tasks for the authenticated user.
+  - `POST /api/tasks`
+    - Creates new task.
+    - Body: `title`, `description` (optional), `status`, `due_date`.
+  - `PUT /api/tasks/{id}`
+    - Updates an existing task belonging to the user.
+  - `DELETE /api/tasks/{id}`
+    - Deletes an existing task belonging to the user.
+
+- **Controller**: `App\Http\Controllers\Api\TaskController`
+  - Returns **JSON responses** with `status`, `message`, and `data` fields.
+  - Uses proper HTTP status codes (`201` for create, `403` for unauthorized, etc.).
+
+---
+
+### 4. Background Job, Queue & Scheduler
+
+#### 4.1. Reminder Command
+
+- Command: `App\Console\Commands\SendTaskReminders`
+  - Signature: `tasks:send-reminders`
+  - Behavior:
+    - Finds tasks due **tomorrow** with status not `completed`.
+    - For each task, queues an email to the owning user.
+
+#### 4.2. Scheduling
+
+- `routes/console.php`:
+
+```php
+Schedule::command('tasks:send-reminders')->dailyAt('08:00');
+```
+
+Laravel’s scheduler must be hooked into your system cron (production) by running the standard `php artisan schedule:run` every minute.
+
+#### 4.3. Queue Worker
+
+To process queued emails:
+
+```bash
+php artisan queue:work
+```
+
+Ensure `QUEUE_CONNECTION=database` and that `php artisan queue:table && php artisan migrate` has been run (already included in migrations).
+
+---
+
+### 5. Database Design & Relationships
+
+- `users` table (default Laravel users).
+- `tasks` table:
+  - `user_id` references `users.id` (`foreignId()->constrained()->onDelete('cascade')`).
+  - Relationship:
+    - `User` hasMany `Task`
+    - `Task` belongsTo `User`
+
+---
+
+### 6. Running Tests (optional)
+
+Laravel’s default feature tests for auth and profile are available. You can run:
+
+```bash
+php artisan test
+```
+
+---
+
+### 7. Notes & Assumptions
+
+- Only **logged-in users** can manage their tasks (web + API).
+- No separate admin role is implemented by default, but the structure allows easy extension:
+  - Add `role` column to `users` table.
+  - Add authorization checks in controllers and/or policies.
+- UI uses **Tailwind** via Laravel Breeze for a clean, modern look; further UI polish can be added easily.
+
+---
+
+### 8. Quick Start Summary
+
+1. `composer install && npm install`
+2. Copy `.env`, configure DB, mail, queue; run `php artisan key:generate`.
+3. `php artisan migrate && php artisan db:seed`
+4. `npm run dev` (or `npm run build`) and `php artisan serve`
+5. Visit `http://localhost:8000`, register/login, and manage tasks from `/dashboard`.  
+6. For API usage, call `POST /api/login` to get a token, then use the task endpoints with `Authorization: Bearer {token}`.
+
